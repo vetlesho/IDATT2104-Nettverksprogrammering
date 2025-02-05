@@ -60,7 +60,7 @@ int main() {
     for (int i = 0; i < numThreads; ++i) {
         int end = start + chunkSize - 1;
         if (i == numThreads - 1) {
-            end = max; // Last thread takes the remainder
+            end = max; //Last thread takes the rest
         }
 
         threads.emplace_back(findPrimes, start, end, ref(primeNumbers));
