@@ -2,6 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "JavaWebServer",
+      "request": "launch",
+      "mainClass": "JavaWebServer",
+      "projectName": "IDATT2104_9df5df3d"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "lldb",
       "request": "launch",
