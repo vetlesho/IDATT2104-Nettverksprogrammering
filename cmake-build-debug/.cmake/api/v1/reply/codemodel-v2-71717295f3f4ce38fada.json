@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "IDATT2104",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "cplusplus_program::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cplusplus_program-Debug-c3b3b63a8717b76c5cbf.json",
+					"name" : "cplusplus_program",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "primenumber_program::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-primenumber_program-Debug-e2c41f047d7b2a3f21e3.json",
+					"name" : "primenumber_program",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "workers_program::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-workers_program-Debug-cc1be8a4841471ad6094.json",
+					"name" : "workers_program",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/vetlehodne/Desktop/V25/IDATT2104/cmake-build-debug",
+		"source" : "/Users/vetlehodne/Desktop/V25/IDATT2104"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

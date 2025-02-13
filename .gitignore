@@ -1,6 +1,11 @@
-# macOS system files
-.DS_Store
-
-# IDE/Editor files
+# IDE-specific files
+.idea/
 .vscode/
+
+# Build and CMake files
+make-build-debug/
+CMakeCache.txt
+CMakeFiles/
+*.o
+*.out
 *.log

@@ -1,0 +1,5 @@
+# ninja log v6
+2	740	1739438980816242818	CMakeFiles/IDATT2104.dir/Programmering/workers.cpp.o	b445a9876484ded8
+1	601	1739438980816082232	CMakeFiles/IDATT2104.dir/Programmering/primenumber.cpp.o	cc804ea4efdb5c91
+1	507	1739438980815817311	CMakeFiles/IDATT2104.dir/Programmering/cplusplus.cpp.o	e0a6246a7177a99b
+2	50	1739439114873667031	build.ninja	e1c458b86749f7c1
