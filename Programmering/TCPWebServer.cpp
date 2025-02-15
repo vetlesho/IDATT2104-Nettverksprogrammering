@@ -118,10 +118,10 @@ int main() {
 /* 
 How to use this program:
 1. Compile it:
-   g++ -std=c++11 -o webserver webserver.cpp
+   g++ -std=c++11 -o TCPWebServer TCPWebServer.cpp
 
 2. Run it:
-   ./webserver
+   ./TCPWebServer
 
 3. Open your web browser and visit:
    http://localhost:3000

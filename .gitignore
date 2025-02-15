@@ -2,10 +2,26 @@
 .idea/
 .vscode/
 
-# Build and CMake files
-make-build-debug/
+# Build artifacts
+/build/
+cmake-build-debug/
 CMakeCache.txt
 CMakeFiles/
+Makefile
 *.o
 *.out
 *.log
+*.a
+*.so
+*.exe
+*.dll
+
+# TLS/SSL keys and certificates (sensitive data)
+server.crt
+server.key
+
+# Other temporary or generated files
+*.swp
+*.tmp
+*.DS_Store
+*.lock
