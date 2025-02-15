@@ -100,6 +100,7 @@ int main() {
         
         // Wait for a new connection
         // Her kobler klienten (nettleser) seg til for å opprette forbindelse
+        // Dette er essensielt med TCP, den aksepterer en kllien, og leser dataen deres. 
         int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddr, &clientAddrLen);
         
         if (clientSocket == -1) {
@@ -124,7 +125,4 @@ How to use this program:
 
 3. Open your web browser and visit:
    http://localhost:3000
-
-4. To stop the server:
-   Press Ctrl+C in the terminal
 */
