@@ -21,6 +21,8 @@ SSL_CTX *initSSL() {
         cerr << "Error creating SSL context" << endl;
         exit(EXIT_FAILURE);
     }
+    cout << "Henter sertifikat og private keye..." << endl;
+
     if (SSL_CTX_use_certificate_file(ctx, "server.crt", SSL_FILETYPE_PEM) <= 0 ||
         SSL_CTX_use_PrivateKey_file(ctx, "server.key", SSL_FILETYPE_PEM) <= 0)
     {
@@ -81,8 +83,7 @@ void handleRequest(SSL *ssl) {
 
 // Oppretter TCP-server med TLS
 // initialiserer først OpenSSL og nødvendige biblioteker for å bruke TLS
-int main()
-{
+int main() {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -123,8 +124,10 @@ int main()
     while (true) {
         sockaddr_in clientAddr;
         socklen_t clientAddrLen = sizeof(clientAddr);
+
         int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, &clientAddrLen);
         char clientIP[INET_ADDRSTRLEN];
+        
         inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, INET_ADDRSTRLEN);
         cout << "Ny tilkobling fra: " << clientIP << ":" << ntohs(clientAddr.sin_port) << endl;
         if (clientSocket == -1) {
@@ -134,6 +137,7 @@ int main()
 
         SSL *ssl = SSL_new(ctx);
         SSL_set_fd(ssl, clientSocket);
+        
 
         if (SSL_accept(ssl) <= 0){
             unsigned long err = ERR_get_error();
@@ -173,7 +177,7 @@ clang++ -std=c++17 -g TCPwithTLS.cpp -o TCPwithTLS \
 -L/opt/homebrew/opt/openssl@3/lib \
 -lssl -lcrypto
  *
- * ./HTTPSWebServer
+ * ./TCPwithTLS
  *
  * https://localhost:4433
  */
