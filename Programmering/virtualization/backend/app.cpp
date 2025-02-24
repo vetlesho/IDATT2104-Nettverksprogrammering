@@ -14,16 +14,11 @@ using namespace web::http::experimental::listener;
 using namespace std;
 
 string execute_python(const string& code) {
-    // Write code to temporary file
+    // Lagrer brukerens kode i en midlertidig fil
     ofstream file("temp.py");
-    if (!file) {
-        cerr << "Failed to create temporary Python file" << endl;
-        return "Error: Failed to create temporary file";
-    }
     
-    // Add error handling wrapper to the Python code
+    // Legger til feilhådntering av klientens kode
     file << "try:\n";
-    // Indent the user's code
     stringstream ss(code);
     string line;
     while (getline(ss, line)) {
@@ -35,78 +30,59 @@ string execute_python(const string& code) {
     
     file.close();
 
-    // Execute Python code in container
-    FILE* pipe = popen("python3 temp.py 2>&1", "r");
-    if (!pipe) {
-        cerr << "Failed to execute Python code" << endl;
-        return "Error: Failed to execute Python code";
-    }
-
-    char buffer[128];
+    // Kjører python koden og fanger resultatet
     string result;
-    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-        result += buffer;
+    FILE* pipe = popen("python3 temp.py 2>&1", "r");
+    if (pipe) {
+        char buffer[128];
+        while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            result += buffer;
+        }
+        pclose(pipe);
     }
-
-    int status = pclose(pipe);
-    remove("temp.py");  // Clean up temp file
-
-    if (status != 0) {
-        cerr << "Python execution failed with status: " << status << endl;
-        // Return the actual error message instead of just the status
-        return result;
-    }
-
+    
+    remove("temp.py");
     return result;
 }
 
-void handle_post(http_request request) {
-    request.extract_json().then([=](json::value json_data) {
-        auto code = json_data[U("code")].as_string();
-        string result = execute_python(utility::conversions::to_utf8string(code));
-        
-        json::value response;
-        response[U("result")] = json::value::string(utility::conversions::to_string_t(result));
-        
-        http_response http_resp(status_codes::OK);
-        http_resp.headers().add(U("Access-Control-Allow-Origin"), U("*"));
-        http_resp.set_body(response);
-        
-        request.reply(http_resp);
-    }).wait();
-}
-
 int main() {
+    // server som lyttter på port 8080
     http_listener listener(U("http://0.0.0.0:8080/execute"));
     
-    // Update POST handler to include CORS headers
+    // håndterer post-forerspørsler fra klienten
     listener.support(methods::POST, [](http_request request) {
-        http_response response(status_codes::OK);
-        response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
-        response.headers().add(U("Access-Control-Allow-Methods"), U("POST, OPTIONS"));
-        response.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type"));
-        
-        handle_post(request);
+        request.extract_json().then([=](json::value json_data) {
+            // henter ut Python-kode fra JSON-forespørselen
+            // konverterer og kjører koden
+            auto code = json_data[U("code")].as_string();
+            string result = execute_python(utility::conversions::to_utf8string(code));
+            
+            json::value response;
+            response[U("result")] = json::value::string(utility::conversions::to_string_t(result));
+            
+            // setter opp HTTP-respons med CORS-header
+            http_response resp(status_codes::OK);
+            resp.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+            resp.set_body(response);
+            request.reply(resp);
+        });
     });
 
-    // Update OPTIONS handler
+    // Håndterer CORS for sikker kommunikasjon mellom backend og frontend
+    // Trenger CORS - Cross-Origin Resource Sharing, 
+    // siden frontend og backend kjører på to forskjellige porter
     listener.support(methods::OPTIONS, [](http_request request) {
         http_response response(status_codes::OK);
-        response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+        response.headers().add(U("Access-Control-Allow-Origin"), U("*")); // burde spesifisere * til f.eks. localhost
         response.headers().add(U("Access-Control-Allow-Methods"), U("POST, OPTIONS"));
         response.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type"));
         request.reply(response);
     });
 
-    try {
-        listener.open().wait();
-        cout << "Server running at http://localhost:8080/execute" << endl;
-        while (true) {
-            this_thread::sleep_for(chrono::seconds(1));
-        }
-    } catch (const exception& e) {
-        cout << "Error: " << e.what() << endl;
-    }
+    listener.open().wait();
+    cout << "Server running at http://localhost:8080/execute\n";
+    while (true) this_thread::sleep_for(chrono::seconds(1));
+    
 
     return 0;
 }

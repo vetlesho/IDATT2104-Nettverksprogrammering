@@ -2,87 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Code Runner</title>
     <style>
-        body {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            font-family: Arial, sans-serif;
+        body { max-width: 800px; margin: 20px auto; font-family: Arial; }
+        textarea { width: 100%; height: 200px; margin: 10px 0; }
+        button { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            cursor: pointer; 
         }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        #result {
-            padding: 10px;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            white-space: pre-wrap;
+        #result { 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            margin-top: 10px; 
+            white-space: pre-wrap; 
         }
     </style>
 </head>
 <body>
     <h1>Python Code Runner</h1>
-    <textarea id="pythonCode" rows="10" placeholder="Enter your Python code here..."></textarea>
+    <textarea id="code" placeholder="Enter Python code here..."></textarea>
     <button onclick="runCode()">Run Code</button>
     <pre id="result"></pre>
 
     <script>
         async function runCode() {
-            const code = document.getElementById('pythonCode').value;
-            const resultDiv = document.getElementById('result');
-            
-            // Show loading state
-            resultDiv.textContent = 'Running code...';
+            const result = document.getElementById('result');
+            result.textContent = 'Running...';
             
             try {
                 const response = await fetch('http://localhost:8080/execute', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ code }),
-                    mode: 'cors'
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        code: document.getElementById('code').value 
+                    })
                 });
-
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
                 
                 const data = await response.json();
-                resultDiv.textContent = data.result;
+                result.textContent = data.result || 'No output';
             } catch (error) {
-                console.error('Error details:', error);
-                resultDiv.textContent = `Error: ${error.message}`;
+                result.textContent = `Error: ${error.message}`;
             }
         }
-
-        // Test connection on page load
-        window.addEventListener('load', async () => {
-            const resultDiv = document.getElementById('result');
-            try {
-                const response = await fetch('http://localhost:8080/execute', {
-                    method: 'OPTIONS'
-                });
-                if (!response.ok) {
-                    resultDiv.textContent = 'Warning: Backend server might not be available';
-                }
-            } catch (error) {
-                console.error('Connection test failed:', error);
-                resultDiv.textContent = 'Warning: Cannot connect to backend server';
-            }
-        });
     </script>
 </body>
 </html>
