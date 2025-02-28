@@ -14,10 +14,10 @@ using namespace web::http::experimental::listener;
 using namespace std;
 
 string execute_python(const string& code) {
-    // Lagrer brukerens kode i en midlertidig fil
     ofstream file("temp.py");
     
     // Legger til feilhådntering av klientens kode
+    // indents og sånn
     file << "try:\n";
     stringstream ss(code);
     string line;
@@ -30,7 +30,8 @@ string execute_python(const string& code) {
     
     file.close();
 
-    // Kjører python koden og fanger resultatet
+    // Kjører python koden 
+    // lagrer resultatet i en string
     string result;
     FILE* pipe = popen("python3 temp.py 2>&1", "r");
     if (pipe) {
