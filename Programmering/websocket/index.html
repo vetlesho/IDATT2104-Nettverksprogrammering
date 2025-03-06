@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>WebSocket Client</title>
+</head>
+<body>
+    <p>WebSocket Client</p>
+    <button onclick="sendHello()">Send Hello</button>
+    <script>
+        const ws = new WebSocket('ws://localhost:3001');
+        
+        // Only send message on button click
+        function sendHello() {
+            ws.send('button_click');
+        }
+        
+        ws.onmessage = event => alert(`Message from server: ${event.data}`);
+        ws.onerror = error => console.error('WebSocket error:', error);
+        ws.onclose = () => console.log('WebSocket connection closed');
+    </script>
+</body>
+</html>
