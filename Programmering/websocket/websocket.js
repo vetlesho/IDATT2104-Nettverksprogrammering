@@ -1,10 +1,10 @@
 const net = require("net");
-const crypto = require("crypto");
+const crypto = require("crypto"); // Brukes for å generere en sikker nøkkel for Websocket handshake
 const fs = require("fs");
 const path = require("path");
 
-const WEBSOCKET_MAGIC_STRING = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 const clients = new Set();
+const WEBSOCKET_MAGIC_STRING = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // rfc6455 standard
 
 class WebSocketServer {
   constructor() {
@@ -12,11 +12,12 @@ class WebSocketServer {
   }
 
   decodeMessage(buffer) {
-    const secondByte = buffer[1];
-    const length = secondByte & 127;
-    const mask = buffer.slice(2, 6);
+    const secondByte = buffer[1]; 
+    const length = secondByte & 127;              // lengde på melding
+    const mask = buffer.slice(2, 6);              // maskere melding, 4bytes
     const payload = buffer.slice(6, 6 + length);
 
+    // XOR-operasjon for å dekryptere meldingen byte for byte
     let decoded = "";
     for (let i = 0; i < payload.length; i++) {
       decoded += String.fromCharCode(payload[i] ^ mask[i % 4]);
@@ -27,12 +28,14 @@ class WebSocketServer {
   encodeMessage(message) {
     const length = Buffer.byteLength(message);
     const buffer = Buffer.alloc(2 + length);
-    buffer[0] = 0x81; // FIN bit + text message
+    buffer[0] = 0x81;         // 0x81 signaliserer at dette er en tekstmelding
     buffer[1] = length;
-    buffer.write(message, 2);
+    buffer.write(message, 2); // Skriver innholdet til bufferen
     return buffer;
   }
 
+  // Når klient kobler til Websocket serveren, sender den en HTTP forespørsel,
+  // serveren svarer så med en 101 switiching protocols for å oppgradere til Websocket-forbindelse
   handleHandshake(data, socket) {
     const request = data.toString();
     if (!request.includes("Upgrade: websocket")) {
@@ -40,17 +43,21 @@ class WebSocketServer {
       return;
     }
 
+    // henter websocket nøkkelen
     const keyMatch = request.match(/Sec-WebSocket-Key: (.+)/);
     if (!keyMatch) {
       socket.end();
       return;
     }
 
+    // hasher den mottatte nøkkelen med RFC6455-standarden stringen
     const acceptKey = crypto
       .createHash("sha1")
       .update(keyMatch[1].trim() + WEBSOCKET_MAGIC_STRING)
       .digest("base64");
 
+    // lager en responsheader til klient
+    // og legger til klienten i clients-settet
     const responseHeaders = [
       "HTTP/1.1 101 Switching Protocols",
       "Upgrade: websocket",
@@ -64,13 +71,15 @@ class WebSocketServer {
     console.log(`Handshake successful with Client ${socket.clientId}`);
   }
 
+  // håndterer meldingen fra klient, 
+  // per nå så er det bare hello-button som godkjennes som melding mellom klinenter
   handleMessage(socket, data) {
     if (data.length < 2) return;
 
     const message = this.decodeMessage(data);
     console.log(`Client ${socket.clientId} sent: ${message}`);
 
-    // Only broadcast button click messages
+    // Broadcaster bare hello-button
     if (message === "button_click") {
       const encodedMessage = this.encodeMessage(
         `Client ${socket.clientId} says hello!`
@@ -87,10 +96,11 @@ class WebSocketServer {
     });
   }
 
+  // starter serveren på port 3000 og websocketen på 3001
   start(httpPort = 3000, wsPort = 3001) {
-    // HTTP Server
-    const httpServer = net.createServer((connection) => {
-      connection.on("data", () => {
+    // HTTP Server med HTML-siden
+    const httpServer = net.createServer((connection) => { // TCP
+      connection.on("data", () => { 
         const content = fs.readFileSync(
           path.join(__dirname, "index.html"),
           "utf8"
@@ -107,12 +117,12 @@ class WebSocketServer {
         );
       });
     });
-
     httpServer.listen(httpPort, () =>
       console.log(`HTTP server listening on port ${httpPort}`)
     );
 
-    const wsServer = net.createServer((socket) => {
+    // WebSocket serveren, inkrementerer clientIdCounter og håndterer handshake 
+    const wsServer = net.createServer((socket) => { // TCP
       socket.clientId = ++this.clientIdCounter;
       console.log(`\nNew client connected: Client ${socket.clientId}`);
 
